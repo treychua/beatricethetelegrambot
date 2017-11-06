@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"log"
 	"strings"
-	"telegram_bot/lunchvenue"
 
 	"github.com/go-telegram-bot-api/telegram-bot-api"
+	"github.com/treychua/beatricethetelegrambot/lunchvenue"
 )
 
 func main() {
@@ -44,6 +44,10 @@ func main() {
 			fmt.Println("---------------------------------------")
 			fmt.Println("entered /list_lunch_venues")
 			reply = strings.Join(lunchvenue.ListLunchVenues(), "\n")
+		case "/choose_lunch_venue":
+			fmt.Println("---------------------------------------")
+			fmt.Println("entered /choose_lunch_venue")
+			reply = lunchvenue.RandVenue()
 		}
 
 		// log.Printf("[%s] %s", update.Message.From.UserName, update.Message.Text)
