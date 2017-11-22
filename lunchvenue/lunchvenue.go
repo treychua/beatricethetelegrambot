@@ -1,44 +1,67 @@
 package lunchvenue
 
-import "math/rand"
+import (
+	"errors"
+)
 
-var lunchVenues = make(map[int]string)
-
-// AddLunchVenue adds a new lunch venue to the map
-func AddLunchVenue(venue string) {
-	lunchVenues[len(lunchVenues)] = venue
+type lunchVenue struct {
+	Location          string `bson:"location"`
+	ChosenFrequency   uint   `bson:"chosenfrequency"`
+	SelectedFrequency uint   `bson:"selectedfrequency"`
 }
 
-// ListLunchVenues will display a list of already defined lunch venues
-func ListLunchVenues() []string {
-	venues := make([]string, len(lunchVenues))
-	for _, v := range lunchVenues {
-		venues = append(venues, v)
+// LunchVenues is a slice of lunch venues
+type LunchVenues []lunchVenue
+
+// InsertLunchVenue inserts a new lunch venue into the slice if it doesn't already exist
+// O(n)
+func (lvs *LunchVenues) InsertLunchVenue(location string) error {
+	for _, v := range *lvs {
+		if v.Location == location {
+			return errors.New("LunchVenues::InsertLunchVenue() - Location already exists")
+		}
 	}
 
-	return venues
+	*lvs = append(*lvs, lunchVenue{location, 0, 0})
+	return nil
 }
 
-// RemoveVenue removes an existing lunch venue
-func RemoveVenue(venue string) {
+// DeleteLunchVenue deletes an element from the slice. O(n)
+func (lvs *LunchVenues) DeleteLunchVenue(location string) {
+	for i, v := range *lvs {
+		if location == v.Location {
+			*lvs = append((*lvs)[:i], (*lvs)[:i+1]...)
+			return
+		}
+	}
+}
 
+// HasLunchVenue is a simple function that checks if a location exists within the lunch venues slice. O(n)
+func (lvs *LunchVenues) HasLunchVenue(location string) bool {
+	for _, v := range *lvs {
+		if v.Location == location {
+			return true
+		}
+	}
+
+	return false
 }
 
 // RandVenue returns a random venue from the list of already defined lunch venues
-func RandVenue() string {
-	if len(lunchVenues) == 0 {
-		return "eh.. add some lunch places first leh"
-	}
-	return lunchVenues[randIntMapKey(lunchVenues)]
-}
+// func RandVenue() string {
+// 	if len(lunchVenues) == 0 {
+// 		return "eh.. add some lunch places first leh"
+// 	}
+// 	return lunchVenues[randIntMapKey(lunchVenues)]
+// }
 
-func randIntMapKey(m map[int]string) int {
-	i := rand.Intn(len(m))
-	for k := range m {
-		if i == 0 {
-			return k
-		}
-		i--
-	}
-	panic("never")
-}
+// func randIntMapKey(m map[int]string) int {
+// 	i := rand.Intn(len(m))
+// 	for k := range m {
+// 		if i == 0 {
+// 			return k
+// 		}
+// 		i--
+// 	}
+// 	panic("never")
+// }
