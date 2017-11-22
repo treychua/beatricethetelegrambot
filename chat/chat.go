@@ -61,25 +61,16 @@ func (c *chat) HandleRequest(r *request.Request) string {
 			log.Println(err)
 			reply = err.Error()
 		} else {
-			s := r.Session.Copy()
-			defer s.Close()
-
-			collection := s.DB("beatricedb").C("chats")
-			err = collection.Update(bson.M{"chatid": c.ChatID}, &c)
-
+			updateChatTable(c, r)
 			reply = location + " added successfully~"
 		}
 
 	case "/list_lunch_venues":
-		fmt.Println("-------------- Entered list_lunch_venues ---------------")
 		reply = "List of venues:\n"
 
 		for i, v := range c.Venues {
 			reply += strconv.Itoa(i+1) + ": " + v.Location + "\n"
 		}
-
-		fmt.Println(reply)
-		fmt.Println("-------------- Exited list_lunch_venues ---------------")
 
 	case "/delete_lunch_venue":
 		if 2 > len(r.Message) {
@@ -89,11 +80,7 @@ func (c *chat) HandleRequest(r *request.Request) string {
 		location := strings.Join(r.Message[1:], " ")
 		c.Venues.DeleteLunchVenue(location)
 
-		s := r.Session.Copy()
-		defer s.Close()
-
-		collection := s.DB("beatricedb").C("chats")
-		collection.Update(bson.M{"chatid": c.ChatID}, &c)
+		updateChatTable(c, r)
 
 		reply = location + " removed successfully~\n"
 		reply += "Remaining list of venues:\n"
@@ -107,4 +94,12 @@ func (c *chat) HandleRequest(r *request.Request) string {
 	}
 
 	return reply
+}
+
+func updateChatTable(c *chat, r *request.Request) {
+	s := r.Session.Copy()
+	defer s.Close()
+
+	collection := s.DB("beatricedb").C("chats")
+	collection.Update(bson.M{"chatid": c.ChatID}, &c)
 }
