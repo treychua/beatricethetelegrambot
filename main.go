@@ -1,15 +1,24 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"strings"
 
 	"github.com/go-telegram-bot-api/telegram-bot-api"
-	"github.com/treychua/beatricethetelegrambot/lunchvenue"
+	"github.com/treychua/beatricethetelegrambot/chat"
+	"github.com/treychua/beatricethetelegrambot/request"
+	mgo "gopkg.in/mgo.v2"
 )
 
 func main() {
+	session, err := mgo.Dial("mongodb://127.0.0.1:27017")
+	if err != nil {
+		log.Panic(err)
+	}
+	defer session.Close()
+
+	session.SetMode(mgo.Monotonic, true) // not very sure what this does yet
+
 	bot, err := tgbotapi.NewBotAPI("468474472:AAEoKhUM1ZTpNUSCOWExEsEXbwhkXLGapIg")
 	if err != nil {
 		log.Panic(err)
@@ -29,30 +38,20 @@ func main() {
 			continue
 		}
 
+		chatID := update.Message.Chat.ID
 		messages := strings.Fields(update.Message.Text)
-		fmt.Println("---------------------------------------")
-		fmt.Println(messages)
-		var reply string
+		newRequest := request.Request{Session: session, ChatID: chatID, Message: messages}
+		c := chat.GetChat(&newRequest)
 
-		switch messages[0] {
-		case "/add_lunch_venue":
-			fmt.Println("---------------------------------------")
-			fmt.Println("entered /add_lunch_venue")
-			lunchvenue.AddLunchVenue(messages[1])
-			reply = messages[1] + " added as a new venue!"
-		case "/list_lunch_venues":
-			fmt.Println("---------------------------------------")
-			fmt.Println("entered /list_lunch_venues")
-			reply = strings.Join(lunchvenue.ListLunchVenues(), "\n")
-		case "/choose_lunch_venue":
-			fmt.Println("---------------------------------------")
-			fmt.Println("entered /choose_lunch_venue")
-			reply = lunchvenue.RandVenue()
+		if nil != err {
+			continue
 		}
 
-		// log.Printf("[%s] %s", update.Message.From.UserName, update.Message.Text)
-		msg := tgbotapi.NewMessage(update.Message.Chat.ID, reply)
+		reply := c.HandleRequest(&newRequest)
+		if 0 != len(reply) {
+			msg := tgbotapi.NewMessage(newRequest.ChatID, reply)
+			bot.Send(msg)
+		}
 
-		bot.Send(msg)
 	}
 }
