@@ -6,7 +6,9 @@ import (
 	"strings"
 
 	"github.com/go-kit/kit/log"
+	kitprometheus "github.com/go-kit/kit/metrics/prometheus"
 	"github.com/go-telegram-bot-api/telegram-bot-api"
+	stdprometheus "github.com/prometheus/client_golang/prometheus"
 	"github.com/treychua/beatricethetelegrambot/chat"
 	"github.com/treychua/beatricethetelegrambot/request"
 	mgo "gopkg.in/mgo.v2"
@@ -16,9 +18,35 @@ func main() {
 
 	logger := log.NewLogfmtLogger(os.Stderr)
 
+	fieldKeys := []string{"method", "error"}
+	requestCount := kitprometheus.NewCounterFrom(stdprometheus.CounterOpts{
+		Namespace: "my_group",
+		Subsystem: "string_service",
+		Name:      "request_count",
+		Help:      "Number of requests received.",
+	}, fieldKeys)
+	requestLatency := kitprometheus.NewSummaryFrom(stdprometheus.SummaryOpts{
+		Namespace: "my_group",
+		Subsystem: "string_service",
+		Name:      "request_latency_microseconds",
+		Help:      "Total duration of requests in microseconds.",
+	}, fieldKeys)
+	countResult := kitprometheus.NewSummaryFrom(stdprometheus.SummaryOpts{
+		Namespace: "my_group",
+		Subsystem: "string_service",
+		Name:      "count_result",
+		Help:      "The result of each count method.",
+	}, []string{})
+
 	var svc chat.ChatService
 	svc = chat.ChatServiceImpl{}
 	svc = chat.LoggingMiddleware{Logger: logger, Svc: svc}
+	svc = chat.InstrumentingMiddleware{
+		RequestCount:   requestCount,
+		RequestLatency: requestLatency,
+		CountResult:    countResult,
+		Svc:            svc,
+	}
 
 	session, err := setupDB()
 	logger.Log(
