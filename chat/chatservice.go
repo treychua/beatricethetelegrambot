@@ -67,7 +67,7 @@ func (cs ChatServiceImpl) HandleRequest(r *request.Request) (string, error) {
 		location := strings.Join(r.Message[1:], " ")
 		c.Venues.Delete(location)
 
-		updateChatTable(c, r)
+		err = updateChatTable(c, r)
 		if nil != err {
 			return reply, err
 		}

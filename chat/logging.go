@@ -16,7 +16,7 @@ type LoggingMiddleware struct {
 func (mw LoggingMiddleware) getChat(req *request.Request) (c *chat, err error) {
 	defer func(begin time.Time) {
 		mw.Logger.Log(
-			"method", "Chat",
+			"method", "getChat",
 			"input", fmt.Sprintf("%#v", req),
 			"output", c,
 			"err", err,
@@ -31,7 +31,7 @@ func (mw LoggingMiddleware) getChat(req *request.Request) (c *chat, err error) {
 func (mw LoggingMiddleware) HandleRequest(r *request.Request) (s string, err error) {
 	defer func(begin time.Time) {
 		mw.Logger.Log(
-			"method", "Chat",
+			"method", "HandleRequest",
 			"input", fmt.Sprintf("%#v", r),
 			"output", s,
 			"err", err,

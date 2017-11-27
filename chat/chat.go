@@ -11,6 +11,7 @@ type chat struct {
 	Venues lunchvenue.LunchVenues `bson:"venues"`
 }
 
+// attempts to get a chat struct from the db. if the chat doesn't exist, creates it
 func getChatFromDB(req *request.Request) (*chat, error) {
 	s := req.Session.Copy()
 	defer s.Close()
