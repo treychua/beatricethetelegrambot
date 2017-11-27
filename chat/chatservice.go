@@ -33,12 +33,12 @@ func (cs ChatServiceImpl) HandleRequest(r *request.Request) (string, error) {
 	var reply string
 	switch r.Message[0] {
 
-	case "/add_lunch_venue":
+	case "/add":
 		if 2 > len(r.Message) {
 			break
 		}
 		location := strings.Join(r.Message[1:], " ")
-		err := c.Venues.InsertLunchVenue(location)
+		err := c.Venues.Add(location)
 		if nil != err {
 			return reply, err
 		}
@@ -49,20 +49,23 @@ func (cs ChatServiceImpl) HandleRequest(r *request.Request) (string, error) {
 
 		reply = location + " added successfully~"
 
-	case "/list_lunch_venues":
+	case "/list":
 		reply = "List of venues:\n"
 
 		for i, v := range c.Venues {
 			reply += strconv.Itoa(i+1) + ": " + v.Location + "\n"
 		}
 
-	case "/delete_lunch_venue":
+	case "/remove":
+		fallthrough
+
+	case "/delete":
 		if 2 > len(r.Message) {
 			break
 		}
 
 		location := strings.Join(r.Message[1:], " ")
-		c.Venues.DeleteLunchVenue(location)
+		c.Venues.Delete(location)
 
 		updateChatTable(c, r)
 		if nil != err {

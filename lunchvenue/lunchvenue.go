@@ -13,12 +13,12 @@ type lunchVenue struct {
 // LunchVenues is a slice of lunch venues
 type LunchVenues []lunchVenue
 
-// InsertLunchVenue inserts a new lunch venue into the slice if it doesn't already exist
+// Add inserts a new lunch venue into the slice if it doesn't already exist
 // O(n)
-func (lvs *LunchVenues) InsertLunchVenue(location string) error {
+func (lvs *LunchVenues) Add(location string) error {
 	for _, v := range *lvs {
 		if v.Location == location {
-			return errors.New("LunchVenues::InsertLunchVenue() - Location already exists")
+			return errors.New("LunchVenues::Add() - Location already exists")
 		}
 	}
 
@@ -26,18 +26,18 @@ func (lvs *LunchVenues) InsertLunchVenue(location string) error {
 	return nil
 }
 
-// DeleteLunchVenue deletes an element from the slice. O(n)
-func (lvs *LunchVenues) DeleteLunchVenue(location string) {
+// Delete deletes an element from the slice. O(n)
+func (lvs *LunchVenues) Delete(location string) {
 	for i, v := range *lvs {
 		if location == v.Location {
-			*lvs = append((*lvs)[:i], (*lvs)[:i+1]...)
+			*lvs = append((*lvs)[:i], (*lvs)[i+1:]...)
 			return
 		}
 	}
 }
 
-// HasLunchVenue is a simple function that checks if a location exists within the lunch venues slice. O(n)
-func (lvs *LunchVenues) HasLunchVenue(location string) bool {
+// Has is a simple function that checks if a location exists within the lunch venues slice. O(n)
+func (lvs *LunchVenues) Has(location string) bool {
 	for _, v := range *lvs {
 		if v.Location == location {
 			return true

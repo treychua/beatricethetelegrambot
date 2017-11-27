@@ -16,24 +16,24 @@ import (
 
 func main() {
 
-	logger := log.NewLogfmtLogger(os.Stderr)
+	logger := log.NewLogfmtLogger(os.Stdout)
 
 	fieldKeys := []string{"method", "error"}
 	requestCount := kitprometheus.NewCounterFrom(stdprometheus.CounterOpts{
-		Namespace: "my_group",
-		Subsystem: "string_service",
+		Namespace: "chat",
+		Subsystem: "chat_service",
 		Name:      "request_count",
 		Help:      "Number of requests received.",
 	}, fieldKeys)
 	requestLatency := kitprometheus.NewSummaryFrom(stdprometheus.SummaryOpts{
-		Namespace: "my_group",
-		Subsystem: "string_service",
+		Namespace: "chat",
+		Subsystem: "chat_service",
 		Name:      "request_latency_microseconds",
 		Help:      "Total duration of requests in microseconds.",
 	}, fieldKeys)
 	countResult := kitprometheus.NewSummaryFrom(stdprometheus.SummaryOpts{
-		Namespace: "my_group",
-		Subsystem: "string_service",
+		Namespace: "chat",
+		Subsystem: "chat_service",
 		Name:      "count_result",
 		Help:      "The result of each count method.",
 	}, []string{})
@@ -78,6 +78,12 @@ func main() {
 			msg := tgbotapi.NewMessage(newRequest.ChatID, reply)
 			bot.Send(msg)
 		}
+
+		// logger.Log(
+		// 	"request_count", fmt.Sprintf("%#v", requestCount),
+		// 	"request_latency", fmt.Sprintf("%#v", requestLatency),
+		// 	"count_result", fmt.Sprintf("%#v", countResult),
+		// )
 
 	}
 }
