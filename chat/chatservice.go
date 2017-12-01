@@ -2,6 +2,7 @@ package chat
 
 import (
 	"errors"
+	"math/rand"
 	"strconv"
 	"strings"
 
@@ -79,8 +80,10 @@ func (cs ChatServiceImpl) HandleRequest(r *request.Request) (string, error) {
 			reply += strconv.Itoa(i+1) + ": " + v.Location + "\n"
 		}
 
-	case "get_random_lunch_venue":
-		reply = "Feature not ready yet"
+	case "/random":
+
+		i := rand.Intn(len(c.Venues))
+		reply = c.Venues[i].Location
 	}
 
 	return reply, nil
