@@ -1,9 +1,5 @@
 package lunchvenue
 
-import (
-	"errors"
-)
-
 type lunchVenue struct {
 	Location          string `bson:"location"`
 	ChosenFrequency   uint   `bson:"chosenfrequency"`
@@ -18,7 +14,7 @@ type LunchVenues []lunchVenue
 func (lvs *LunchVenues) Add(location string) error {
 	for _, v := range *lvs {
 		if v.Location == location {
-			return errors.New("LunchVenues::Add() - Location already exists")
+			return &LocationAlreadyExistsError{}
 		}
 	}
 

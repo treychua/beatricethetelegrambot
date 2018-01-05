@@ -36,8 +36,8 @@ func main() {
 	// 	Help:      "The result of each count method.",
 	// }, []string{})
 
-	var svc chat.ChatService
-	svc = chat.ChatServiceImpl{}
+	var svc chat.Service
+	svc = chat.ServiceImpl{}
 	svc = chat.LoggingMiddleware{Logger: logger, Svc: svc}
 	// svc = chat.InstrumentingMiddleware{
 	// 	RequestCount:   requestCount,
