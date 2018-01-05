@@ -8,6 +8,7 @@ import (
 	"github.com/treychua/beatricethetelegrambot/request"
 )
 
+// LoggingMiddleware is another layer to perform structured logging
 type LoggingMiddleware struct {
 	Logger log.Logger
 	Svc    Service
@@ -24,7 +25,6 @@ func (mw LoggingMiddleware) HandleRequest(r *request.Request) (s string, err err
 		)
 	}(time.Now())
 
-	// s, err = mw.Svc.HandleRequest(r)
 	s, err = handleRequest(r, mw)
 	return
 }
@@ -41,6 +41,20 @@ func (mw LoggingMiddleware) getChat(r *request.Request) (c *chat, err error) {
 	}(time.Now())
 
 	c, err = mw.Svc.getChat(r)
+	return
+}
+
+func (mw LoggingMiddleware) handleList(c *chat) (s string) {
+	defer func(begin time.Time) {
+		mw.Logger.Log(
+			"method", "handleList",
+			"input", fmt.Sprintf("c: %#v", c),
+			"output", s,
+			"took", time.Since(begin),
+		)
+	}(time.Now())
+
+	s = mw.Svc.handleList(c)
 	return
 }
 

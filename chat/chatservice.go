@@ -20,7 +20,7 @@ type Service interface {
 	getChat(r *request.Request) (*chat, error)
 	handleAdd(c *chat, r *request.Request) (string, error)
 	// handleDelete(req *req.Request) (string, error)
-	// handleList(req *req.Request) (string, error)
+	handleList(c *chat) string
 }
 
 // ServiceImpl is an empty struct that'll have the methods for fulfilling Service's interface
@@ -50,8 +50,18 @@ func (cs ServiceImpl) handleAdd(c *chat, r *request.Request) (string, error) {
 // func (cs ServiceImpl) handleDelete(msg []string) (string, error) {
 // }
 
-// func (cs ServiceImpl) handleList(msg []string) (string, error) {
-// }
+func (cs ServiceImpl) handleList(c *chat) string {
+	if 0 == len(c.Venues) {
+		return "You have no venues for lunch~ :("
+	}
+
+	reply := "Here are some of the places you've added!\n"
+	for i, v := range c.Venues {
+		reply += strconv.Itoa(i+1) + ": " + v.Location + "\n"
+	}
+
+	return reply
+}
 
 // HandleRequest handles a request given by Telegram and returns a reply message.
 func (cs ServiceImpl) HandleRequest(r *request.Request) (string, error) {
@@ -81,11 +91,7 @@ func handleRequest(r *request.Request, s Service) (string, error) {
 		}
 
 	case "/list":
-		reply = "List of venues:\n"
-
-		for i, v := range c.Venues {
-			reply += strconv.Itoa(i+1) + ": " + v.Location + "\n"
-		}
+		reply = s.handleList(c)
 
 	case "/remove":
 		fallthrough
