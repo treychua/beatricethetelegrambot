@@ -50,14 +50,27 @@ func TestDelete(t *testing.T) {
 		lvs.Add("lunch venue " + strconv.Itoa(i))
 	}
 
-	lvs.Delete("lunch venue 1")
+	result, err := lvs.Delete("lunch venue 1")
+	if !result || nil != err {
+		t.Errorf("Expected %v, %v but got %v, %v instead", true, nil, result, err)
+	}
+
 	if lvs.Has("lunch venue 1") {
 		t.Error("Expected lunch venue 1 to be removed but it is still inside")
 	}
 
-	lvs.Delete("lunch venue 3")
+	result, err = lvs.Delete("lunch venue 3")
+	if !result || nil != err {
+		t.Errorf("Expected %v, %v but got %v, %v instead", true, nil, result, err)
+	}
+
 	if lvs.Has("lunch venue 3") {
 		t.Error("Expected lunch venue 3 to be removed but it is still inside")
+	}
+
+	result, err = lvs.Delete("lunch venue 1")
+	if result || nil == err {
+		t.Errorf("Expected %v, %v but got %v, %v instead", true, nil, result, err)
 	}
 
 }
