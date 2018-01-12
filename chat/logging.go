@@ -72,3 +72,18 @@ func (mw LoggingMiddleware) handleAdd(c *chat, r *request.Request) (s string, er
 	s, err = mw.Svc.handleAdd(c, r)
 	return
 }
+
+func (mw LoggingMiddleware) handleDelete(c *chat, r *request.Request) (s string, err error) {
+	defer func(begin time.Time) {
+		mw.Logger.Log(
+			"method", "handleDelete",
+			"input", fmt.Sprintf("c: %#v, r: %#v", c, r),
+			"output", s,
+			"err", err,
+			"took", time.Since(begin),
+		)
+	}(time.Now())
+
+	s, err = mw.Svc.handleDelete(c, r)
+	return
+}

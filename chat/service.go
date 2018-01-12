@@ -19,7 +19,7 @@ type Service interface {
 
 	getChat(r *request.Request) (*chat, error)
 	handleAdd(c *chat, r *request.Request) (string, error)
-	// handleDelete(req *req.Request) (string, error)
+	handleDelete(c *chat, r *request.Request) (string, error)
 	handleList(c *chat) string
 }
 
@@ -47,8 +47,37 @@ func (cs ServiceImpl) handleAdd(c *chat, r *request.Request) (string, error) {
 	return location + " added successfully~ Ehehe~", nil
 }
 
-// func (cs ServiceImpl) handleDelete(msg []string) (string, error) {
-// }
+func (cs ServiceImpl) handleDelete(c *chat, r *request.Request) (string, error) {
+	if 2 > len(r.Message) {
+		return "Huh? What'd you want removed, again? Try telling me '/delete <your venue>' again!", nil
+	}
+
+	location := strings.Join(r.Message[1:], " ")
+	ok, err := c.Venues.Delete(location)
+
+	if !ok {
+		if _, errMsg := err.(*lunchvenue.LocationNotFoundError); errMsg {
+			return "You didn't provide a venue that's in the list! >:(", nil
+		}
+	}
+
+	err = updateChatTable(c, r)
+	if nil != err {
+		return "", err
+	}
+
+	reply := location + " removed successfully~\n"
+	if 0 == len(c.Venues) {
+		reply += "You have no other venues remaining! Add more soon, okay?"
+	} else {
+		reply += "You have the remaining venues~ \n"
+		for i, v := range c.Venues {
+			reply += strconv.Itoa(i+1) + ": " + v.Location + "\n"
+		}
+	}
+
+	return reply, nil
+}
 
 func (cs ServiceImpl) handleList(c *chat) string {
 	if 0 == len(c.Venues) {
@@ -97,27 +126,12 @@ func handleRequest(r *request.Request, s Service) (string, error) {
 		fallthrough
 
 	case "/delete":
-		if 2 > len(r.Message) {
-			break
-		}
-
-		location := strings.Join(r.Message[1:], " ")
-		c.Venues.Delete(location)
-
-		err = updateChatTable(c, r)
-		if nil != err {
+		reply, err = s.handleDelete(c, r)
+		if err != nil {
 			return reply, err
 		}
 
-		reply = location + " removed successfully~\n"
-		reply += "Remaining list of venues:\n"
-
-		for i, v := range c.Venues {
-			reply += strconv.Itoa(i+1) + ": " + v.Location + "\n"
-		}
-
 	case "/random":
-
 		i := rand.Intn(len(c.Venues))
 		reply = c.Venues[i].Location
 	}
