@@ -43,22 +43,3 @@ func (lvs *LunchVenues) Delete(location string) (bool, error) {
 
 	return false, &LocationNotFoundError{}
 }
-
-// RandVenue returns a random venue from the list of already defined lunch venues
-// func RandVenue() string {
-// 	if len(lunchVenues) == 0 {
-// 		return "eh.. add some lunch places first leh"
-// 	}
-// 	return lunchVenues[randIntMapKey(lunchVenues)]
-// }
-
-// func randIntMapKey(m map[int]string) int {
-// 	i := rand.Intn(len(m))
-// 	for k := range m {
-// 		if i == 0 {
-// 			return k
-// 		}
-// 		i--
-// 	}
-// 	panic("never")
-// }

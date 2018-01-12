@@ -14,6 +14,7 @@ type LoggingMiddleware struct {
 	Svc    Service
 }
 
+//HandleRequest to perform structured logging for all requests
 func (mw LoggingMiddleware) HandleRequest(r *request.Request) (s string, err error) {
 	defer func(begin time.Time) {
 		mw.Logger.Log(
@@ -55,6 +56,20 @@ func (mw LoggingMiddleware) handleList(c *chat) (s string) {
 	}(time.Now())
 
 	s = mw.Svc.handleList(c)
+	return
+}
+
+func (mw LoggingMiddleware) handleRand(c *chat) (s string) {
+	defer func(begin time.Time) {
+		mw.Logger.Log(
+			"method", "handleRand",
+			"input", fmt.Sprintf("c: %#v", c),
+			"output", s,
+			"took", time.Since(begin),
+		)
+	}(time.Now())
+
+	s = mw.Svc.handleRand(c)
 	return
 }
 
