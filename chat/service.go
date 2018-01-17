@@ -21,6 +21,7 @@ type Service interface {
 	handleAdd(c *chat, r *request.Request) (string, error)
 	handleDelete(c *chat, r *request.Request) (string, error)
 	handleList(c *chat) string
+	handleRand(c *chat) string
 }
 
 // ServiceImpl is an empty struct that'll have the methods for fulfilling Service's interface
@@ -97,6 +98,18 @@ func (cs ServiceImpl) handleList(c *chat) string {
 	return reply
 }
 
+func (cs ServiceImpl) handleRand(c *chat) string {
+	if 0 == len(c.Venues) {
+		return "Hey... you don't have any venues! >:("
+	}
+
+	i := rand.Intn(len(c.Venues))
+
+	reply := "Okay... it'll have to be " + c.Venues[i].Location + " for today! :)"
+
+	return reply
+}
+
 // HandleRequest handles a request given by Telegram and returns a reply message.
 func (cs ServiceImpl) HandleRequest(r *request.Request) (string, error) {
 	return handleRequest(r, cs)
@@ -127,18 +140,14 @@ func handleRequest(r *request.Request, s Service) (string, error) {
 	case "/list":
 		reply = s.handleList(c)
 
-	case "/remove":
-		fallthrough
-
-	case "/delete":
+	case "/del":
 		reply, err = s.handleDelete(c, r)
 		if err != nil {
 			return reply, err
 		}
 
-	case "/random":
-		i := rand.Intn(len(c.Venues))
-		reply = c.Venues[i].Location
+	case "/rand":
+		reply = s.handleRand(c)
 	}
 
 	return reply, nil

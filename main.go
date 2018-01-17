@@ -68,6 +68,8 @@ func main() {
 	defer session.Close()
 
 	bot, updates, err := getTelegramUpdates()
+	lastid := 0
+
 	logger.Log(
 		"method", "getTelegramUpdates",
 		"output 1", fmt.Sprintf("%#v", bot),
@@ -76,18 +78,55 @@ func main() {
 	)
 
 	for update := range updates {
-		if update.Message == nil {
+
+		if update.Message == nil && (update.CallbackQuery == nil || lastid == 0) {
 			continue
 		}
 
-		chatID := update.Message.Chat.ID
-		messages := strings.Fields(update.Message.Text)
-		newRequest := request.Request{Session: session, ChatID: chatID, Message: messages}
+		var chatID int64
+		var messages []string
+		var reply string
+		var err error
+		msg := tgbotapi.NewMessage(0, "")
 
-		reply, err := svc.HandleRequest(&newRequest)
+		if lastid != 0 && update.CallbackQuery != nil {
+			//choose next random location
+			if update.CallbackQuery.Data == "next" {
+
+				chatID = update.CallbackQuery.Message.Chat.ID
+				messages = strings.Fields("/random")
+				newRequest := request.Request{Session: session, ChatID: chatID, Message: messages}
+				reply, err = svc.HandleRequest(&newRequest)
+				msg = tgbotapi.NewMessage(newRequest.ChatID, reply)
+				butt := tgbotapi.NewInlineKeyboardRow(tgbotapi.NewInlineKeyboardButtonData("Okay~", "ok"), tgbotapi.NewInlineKeyboardButtonData("Choose again!", "next"))
+				keyb := tgbotapi.NewInlineKeyboardMarkup(butt)
+				// keyb.OneTimeKeyboard = true
+				msg.ReplyMarkup = &keyb
+
+			} else {
+				//save something to db?
+				reply = "Yay! Enjoy your lunch~~~"
+				msg = tgbotapi.NewMessage(update.CallbackQuery.Message.Chat.ID, reply)
+			}
+
+		} else {
+			//update.Message != nil
+			chatID = update.Message.Chat.ID
+			messages = strings.Fields(update.Message.Text)
+			newRequest := request.Request{Session: session, ChatID: chatID, Message: messages}
+			reply, err = svc.HandleRequest(&newRequest)
+			msg = tgbotapi.NewMessage(newRequest.ChatID, reply)
+
+			if len(messages) > 0 && strings.Contains(strings.ToLower(messages[0]), "/random") {
+				butt := tgbotapi.NewInlineKeyboardRow(tgbotapi.NewInlineKeyboardButtonData("Okay", "ok"), tgbotapi.NewInlineKeyboardButtonData("Choose again!", "next"))
+				keyb := tgbotapi.NewInlineKeyboardMarkup(butt)
+				msg.ReplyMarkup = &keyb
+			}
+		}
+
 		if nil == err {
-			msg := tgbotapi.NewMessage(newRequest.ChatID, reply)
-			bot.Send(msg)
+			sm, _ := bot.Send(msg)
+			lastid = sm.MessageID
 		}
 
 		// logger.Log(
