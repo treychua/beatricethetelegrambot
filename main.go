@@ -29,35 +29,9 @@ func main() {
 
 	logger := log.NewLogfmtLogger(f)
 
-	// fieldKeys := []string{"method", "error"}
-	// requestCount := kitprometheus.NewCounterFrom(stdprometheus.CounterOpts{
-	// 	Namespace: "chat",
-	// 	Subsystem: "chat_service",
-	// 	Name:      "request_count",
-	// 	Help:      "Number of requests received.",
-	// }, fieldKeys)
-	// requestLatency := kitprometheus.NewSummaryFrom(stdprometheus.SummaryOpts{
-	// 	Namespace: "chat",
-	// 	Subsystem: "chat_service",
-	// 	Name:      "request_latency_microseconds",
-	// 	Help:      "Total duration of requests in microseconds.",
-	// }, fieldKeys)
-	// countResult := kitprometheus.NewSummaryFrom(stdprometheus.SummaryOpts{
-	// 	Namespace: "chat",
-	// 	Subsystem: "chat_service",
-	// 	Name:      "count_result",
-	// 	Help:      "The result of each count method.",
-	// }, []string{})
-
 	var svc chat.Service
 	svc = chat.ServiceImpl{}
 	svc = chat.LoggingMiddleware{Logger: logger, Svc: svc}
-	// svc = chat.InstrumentingMiddleware{
-	// 	RequestCount:   requestCount,
-	// 	RequestLatency: requestLatency,
-	// 	CountResult:    countResult,
-	// 	Svc:            svc,
-	// }
 
 	session, err := setupDB()
 	logger.Log(
@@ -94,7 +68,7 @@ func main() {
 			if update.CallbackQuery.Data == "next" {
 
 				chatID = update.CallbackQuery.Message.Chat.ID
-				messages = strings.Fields("/random")
+				messages = strings.Fields("/rand")
 				newRequest := request.Request{Session: session, ChatID: chatID, Message: messages}
 				reply, err = svc.HandleRequest(&newRequest)
 				msg = tgbotapi.NewMessage(newRequest.ChatID, reply)
@@ -117,7 +91,7 @@ func main() {
 			reply, err = svc.HandleRequest(&newRequest)
 			msg = tgbotapi.NewMessage(newRequest.ChatID, reply)
 
-			if len(messages) > 0 && strings.Contains(strings.ToLower(messages[0]), "/random") {
+			if len(messages) > 0 && strings.Contains(strings.ToLower(messages[0]), "/rand") {
 				butt := tgbotapi.NewInlineKeyboardRow(tgbotapi.NewInlineKeyboardButtonData("Okay", "ok"), tgbotapi.NewInlineKeyboardButtonData("Choose again!", "next"))
 				keyb := tgbotapi.NewInlineKeyboardMarkup(butt)
 				msg.ReplyMarkup = &keyb
@@ -128,12 +102,6 @@ func main() {
 			sm, _ := bot.Send(msg)
 			lastid = sm.MessageID
 		}
-
-		// logger.Log(
-		// 	"request_count", fmt.Sprintf("%#v", requestCount),
-		// 	"request_latency", fmt.Sprintf("%#v", requestLatency),
-		// 	"count_result", fmt.Sprintf("%#v", countResult),
-		// )
 
 	}
 }
