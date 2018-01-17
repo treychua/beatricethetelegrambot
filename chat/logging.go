@@ -50,6 +50,7 @@ func (mw LoggingMiddleware) handleList(c *chat) (s string) {
 			"method", "handleList",
 			"input", fmt.Sprintf("c: %#v", c),
 			"output", s,
+			"err", nil,
 			"took", time.Since(begin),
 		)
 	}(time.Now())

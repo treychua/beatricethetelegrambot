@@ -13,8 +13,21 @@ import (
 )
 
 func main() {
+	gopath := os.Getenv("HOME")
+	logpath := gopath + "/logs.txt"
 
-	logger := log.NewLogfmtLogger(os.Stdout)
+	var f *os.File
+	var err error
+
+	if f, err = os.Open(logpath); err != nil {
+		f, err = os.Create(logpath)
+		if err != nil {
+			panic(err)
+		}
+	}
+	defer f.Close()
+
+	logger := log.NewLogfmtLogger(f)
 
 	// fieldKeys := []string{"method", "error"}
 	// requestCount := kitprometheus.NewCounterFrom(stdprometheus.CounterOpts{

@@ -34,7 +34,12 @@ func (cs ServiceImpl) handleAdd(c *chat, r *request.Request) (string, error) {
 	if 2 > len(r.Message) {
 		return "Sorry? I didn't catch what you said! Use '/add <your venue>'!", nil
 	}
+
 	location := strings.Join(r.Message[1:], " ")
+	if location == "ERRORSTRING" {
+		return "HUHHHHHHHHHH I BROKE", errors.New("GOT INVALID INPUT PANIC PANIC")
+	}
+
 	err := c.Venues.Add(location)
 	if _, ok := err.(*lunchvenue.LocationAlreadyExistsError); ok {
 		return `Location already exists~! Try somewhere else!  ¯\_(ツ)_/¯`, nil
