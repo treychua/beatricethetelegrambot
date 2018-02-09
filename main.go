@@ -33,6 +33,11 @@ func main() {
 	svc = chat.ServiceImpl{}
 	svc = chat.LoggingMiddleware{Logger: logger, Svc: svc}
 
+	// ... other stuff goes here first...
+	// ... a request called newRequest is received...
+
+	// svc.HandleRequest(&newRequest)
+
 	session, err := setupDB()
 	logger.Log(
 		"method", "setupDB",
