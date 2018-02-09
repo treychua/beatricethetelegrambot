@@ -18,3 +18,5 @@ bot, err := tgbotapi.NewBotAPI("YOUR_KEY_OBTAINED_FROM_BOTFATHER_HERE")
 # future features
 1. randomly obtain location
 2. nearby location tracking
+
+#test
