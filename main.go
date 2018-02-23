@@ -1,5 +1,6 @@
 package main
 
+// this is a test comment
 import (
 	"fmt"
 	"os"
