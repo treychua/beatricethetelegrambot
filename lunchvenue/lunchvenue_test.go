@@ -13,7 +13,7 @@ func TestAdd(t *testing.T) {
 		t.Errorf("Expected length of LunchVenues to be %v but got %v", 1, len(lvs))
 	}
 
-	if "location1" != lvs[0].Location {
+	if "location1" == lvs[0].Location {
 		t.Errorf("Expected %v but got %v", "location1", lvs[0].Location)
 	}
 
